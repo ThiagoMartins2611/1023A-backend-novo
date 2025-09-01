@@ -28,5 +28,3 @@ app.get('/', async (req:Request, res:Response)=>{
 app.listen(8000,()=>{
     console.log("SERVER RUNNING IN THE PORT 8000, http://localhost:8000");
 })
-
-
