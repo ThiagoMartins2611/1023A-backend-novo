@@ -37,3 +37,17 @@ app.listen(8000,()=>{
 //O produto deve ter id, nome, preco, urlfoto, descricao
 //deve se criar uma tabela no banco de dados AIVEN para armazenar os produtos
 //A respsota deve ser uma array de produtos no formato JSON
+/*
+
+CREATE TABLE produtos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    preco DECIMAL(10,2) NOT NULL,
+    urlfoto VARCHAR(255) NOT NULL,
+    descricao TEXT
+)
+ 
+Faz pelo menos 3 inserts
+
+
+*/ 
