@@ -40,7 +40,7 @@ app.get('/produtos', async (req:Request, res:Response)=>{
         res.send(produtos[0]);
 
     } catch (error) {
-        
+        console.log("erro ao conectar", error)
     }
 });
 
