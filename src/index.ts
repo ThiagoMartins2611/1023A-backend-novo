@@ -26,7 +26,22 @@ app.get('/', async (req:Request, res:Response)=>{
 });
 
 app.get('/produtos', async (req:Request, res:Response)=>{
+    try {
+        
+        const conn = await mysql.createConnection({
+            host: process.env.DBHOST?process.env.DBHOST:'error localhost',
+            user: process.env.DBUSER?process.env.DBUSER:'error user',
+            password: process.env.DBPASSWORD?process.env.DBPASSWORD:'',
+            database: process.env.DBNAME?process.env.DBNAME:"error name",
+            port: Number(process.env.DBPORT?process.env.DBPORT:"3306")
+        });
 
+        const produtos = await conn.query("SELECT * FROM produtos");
+        res.send(produtos[0]);
+
+    } catch (error) {
+        
+    }
 });
 
 app.listen(8000,()=>{
