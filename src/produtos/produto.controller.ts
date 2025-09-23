@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
-import db from "../database/banco-mongo"
-
+import db from "../database/banco-mongo.js"
+import ProdutoEntity from "./produto.entity.js";
 
 //id
 //nome
@@ -12,7 +12,10 @@ class ProdutoController{
     
     async adicionar(req:Request, res:Response){
 
-        const produto = req.body;
+        const {id, nome, preco, urlfoto, descricao} = req.body;
+
+        const produto = new ProdutoEntity(id, nome, preco, urlfoto, descricao)
+
         const resultado = await db.collection('produtos').insertOne(produto)
         res.status(201).json({...produto, _id: resultado.insertedId})  
     }
