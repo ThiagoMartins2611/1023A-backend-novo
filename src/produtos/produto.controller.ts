@@ -1,5 +1,28 @@
+import { Request, Response } from "express"
+import db from "../database/banco-mongo"
+
+
 //id
 //nome
 //preco
 //urlfoto
 //descricao
+
+class ProdutoController{
+    
+    async adicionar(req:Request, res:Response){
+
+        const produto = req.body;
+        const resultado = await db.collection('produtos').insertOne(produto)
+        res.status(201).json({...produto, _id: resultado.insertedId})  
+    }
+
+    async listar(req:Request, res:Response){
+
+        const produtos = await db.collection('produtos').find().toArray();
+        res.status(200).json(produtos);
+    }
+
+}
+
+export default new ProdutoController()
