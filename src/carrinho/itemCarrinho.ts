@@ -4,9 +4,9 @@ class ItemCarrinho extends ProdutoEntity{
 
     readonly quantidade: number;
 
-    constructor(id:number, nome:string, preco:string, urlfoto:string, descricao:string, quantidade:number){
+    constructor(_id:number, nome:string, preco:string, urlfoto:string, descricao:string, quantidade:number){
 
-        super(id, nome, preco, urlfoto, descricao)
+        super(_id, nome, preco, urlfoto, descricao)
         this.quantidade = quantidade
 
     }

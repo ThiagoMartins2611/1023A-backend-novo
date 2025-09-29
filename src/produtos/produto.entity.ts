@@ -6,14 +6,14 @@
 
 class ProdutoEntity{
 
-    readonly id:number
+    readonly _id:number
     readonly nome:string
     readonly preco:string
     readonly urlfoto:string
     readonly descricao:string
 
-    constructor(id:number, nome:string, preco:string, urlfoto:string,descricao:string){
-        this.id = id
+    constructor(_id:number, nome:string, preco:string, urlfoto:string,descricao:string){
+        this._id = _id
         this.nome = nome
         this.preco = preco
         this.urlfoto = urlfoto

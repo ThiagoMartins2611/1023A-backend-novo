@@ -2,6 +2,7 @@
 import { Request, Response } from "express"
 import db from "../database/banco-mongo.js"
 import itemCarrinho from "./itemCarrinho.js";
+import ProdutoEntity from "../produtos/produto.entity.js";
 
 
 interface Carrinho {
@@ -20,31 +21,45 @@ class CarrinhoController{
 
     async adicionarItem(req:Request, res:Response){
 
-        const {produtoId, usuarioId} = req.body;
+        const {produtoId, usuarioId, quantidadeItem} = req.body as {produtoId:number, usuarioId:Number, quantidadeItem:number};
 
         const resultado = await db.collection('carrinhos').find({usuarioId: usuarioId}).toArray();
+        const item:itemCarrinho|null = await db.collection<itemCarrinho>('produtos').findOne({_id: produtoId});
 
-        if(resultado.length == 0){
+        if(!item){
+            return res.status(400).json({mensagem: "Item não encontrado"})
+        }
 
-            const item = await db.collection('produtos').find({produtoId});
+        item.quantidade = quantidadeItem;
+
+        if(resultado.length === 0){
             
-            
-
             const carrinho = {
                 usuarioId:usuarioId,
                 itens: [item],
-                dataAtulizacao: Date.now(),
+                dataAtulizacao: new Date(),
                 total: 1
             }
 
-            const res = await db.collection('carrinhos').insertOne(carrinho)
+            const re = await db.collection('carrinhos').insertOne(carrinho)
+            return res.status(201).json({mensagem: "Carrinho criado com sucesso"})
         }else{
 
+             const resultadoAtualizacao = await db.collection<Carrinho>('carrinhos').updateOne(
+                {usuarioId: usuarioId}, 
+                {
+
+                    $push: {itens: item},
+                    $set: {dataAtualizacao: new Date()},
+                    $inc: {total: 1}
+                }
+            
+            )
+
+            res.status(201).json({...item, _id: resultado, mensagem: "Item adcionado com sucesso"})  
         }
         
 
-        //const resultado = await db.collection('carrinho').insertOne(item)
-        //res.status(201).json({...item, _id: resultado.insertedId})  
     }
 
     async listarItem(req:Request, res:Response){
