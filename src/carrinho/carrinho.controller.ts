@@ -4,6 +4,7 @@ import db from "../database/banco-mongo.js"
 import itemCarrinho from "./itemCarrinho.js";
 import ProdutoEntity from "../produtos/produto.entity.js";
 import ItemCarrinho from "./itemCarrinho.js";
+import { ObjectId } from "bson";
 
 
 interface Carrinho {
@@ -11,6 +12,14 @@ interface Carrinho {
     itens: itemCarrinho[];
     dataAtualizacao: Date;
     total:number;
+}
+
+interface ItemDTO {
+    _id: ObjectId,
+    nome:string,
+    preco: string,
+    urlfoto:string,
+    descricao: string
 }
 
 class CarrinhoController{
@@ -25,13 +34,14 @@ class CarrinhoController{
         const {produtoId, usuarioId, quantidadeItem} = req.body as {produtoId:string, usuarioId:Number, quantidadeItem:number};
 
         const resultado = await db.collection('carrinhos').find({usuarioId: usuarioId}).toArray();
-        const item:ProdutoEntity|null = await db.collection<ProdutoEntity>('produtos').findOne({_id: produtoId});
+
+        const item:ItemDTO | null = await db.collection<ItemDTO>('produtos').findOne({_id:ObjectId.createFromHexString(produtoId)});
 
         if(!item){
             return res.status(400).json({mensagem: "Item não encontrado"})
         }
 
-        const itemCarrinho = new ItemCarrinho(item._id, item.nome, item.preco, item.urlfoto, item.descricao);
+        const itemCarrinho = new ItemCarrinho(item._id.toString(), item.nome, item.preco, item.urlfoto, item.descricao);
         itemCarrinho.setQuantidade(quantidadeItem)
         
         

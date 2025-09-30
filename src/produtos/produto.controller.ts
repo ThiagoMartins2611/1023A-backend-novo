@@ -19,8 +19,7 @@ class ProdutoController{
 
         const produtoDTO = {_id:ObjectId.createFromHexString(produto._id),nome:produto.nome,preco:produto.preco,urlfoto:produto.urlfoto,descricao:produto.descricao}
         
-        const resultado = await db.collection('produtos').insertOne(produtoDTO);
-
+        const resultado = await db.collection('produtos').insertOne(produtoDTO)
 
         res.status(201).json({...produto, _id: resultado.insertedId})  
     }

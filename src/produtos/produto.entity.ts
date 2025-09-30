@@ -4,6 +4,7 @@
 //urlfoto
 //descricao
 
+
 class ProdutoEntity{
 
     readonly _id:string
