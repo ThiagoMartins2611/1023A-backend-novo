@@ -15,9 +15,12 @@ class ProdutoController{
 
         const {_id, nome, preco, urlfoto, descricao} = req.body as {_id:string, nome:string, preco:string, urlfoto:string, descricao:string};
 
-        const produto = new ProdutoEntity(_id, nome, preco, urlfoto, descricao) 
+        const produto = new ProdutoEntity(_id, nome, preco, urlfoto, descricao)
+
+        const produtoDTO = {_id:ObjectId.createFromHexString(produto._id),nome:produto.nome,preco:produto.preco,urlfoto:produto.urlfoto,descricao:produto.descricao}
         
-        const resultado = await db.collection('produtos').insertOne({_id:ObjectId.createFromHexString(produto._id),produto})
+        const resultado = await db.collection('produtos').insertOne(produtoDTO);
+
 
         res.status(201).json({...produto, _id: resultado.insertedId})  
     }
