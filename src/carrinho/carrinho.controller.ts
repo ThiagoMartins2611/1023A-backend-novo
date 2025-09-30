@@ -3,6 +3,7 @@ import { Request, Response } from "express"
 import db from "../database/banco-mongo.js"
 import itemCarrinho from "./itemCarrinho.js";
 import ProdutoEntity from "../produtos/produto.entity.js";
+import ItemCarrinho from "./itemCarrinho.js";
 
 
 interface Carrinho {
@@ -24,14 +25,16 @@ class CarrinhoController{
         const {produtoId, usuarioId, quantidadeItem} = req.body as {produtoId:number, usuarioId:Number, quantidadeItem:number};
 
         const resultado = await db.collection('carrinhos').find({usuarioId: usuarioId}).toArray();
-        const item:itemCarrinho|null = await db.collection<itemCarrinho>('produtos').findOne({_id: produtoId});
+        const item:ProdutoEntity|null = await db.collection<ProdutoEntity>('produtos').findOne({_id: produtoId});
 
         if(!item){
             return res.status(400).json({mensagem: "Item não encontrado"})
         }
 
-        item.quantidade = quantidadeItem;
-
+        const itemCarrinho = new ItemCarrinho(item._id, item.nome, item.preco, item.urlfoto, item.descricao);
+        itemCarrinho.setQuantidade(quantidadeItem)
+        
+        
         if(resultado.length === 0){
             
             const carrinho = {
@@ -49,7 +52,7 @@ class CarrinhoController{
                 {usuarioId: usuarioId}, 
                 {
 
-                    $push: {itens: item},
+                    $push: {itens: itemCarrinho},
                     $set: {dataAtualizacao: new Date()},
                     $inc: {total: 1}
                 }
@@ -61,6 +64,11 @@ class CarrinhoController{
         
 
     }
+
+
+
+
+
 
     async listarItem(req:Request, res:Response){
         

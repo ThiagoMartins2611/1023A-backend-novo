@@ -2,13 +2,17 @@ import ProdutoEntity from "../produtos/produto.entity.js";
 
 class ItemCarrinho extends ProdutoEntity{
 
-    readonly quantidade: number;
+    private quantidade: number;
 
-    constructor(_id:number, nome:string, preco:string, urlfoto:string, descricao:string, quantidade:number){
+    constructor(_id:number, nome:string, preco:string, urlfoto:string, descricao:string){
 
         super(_id, nome, preco, urlfoto, descricao)
-        this.quantidade = quantidade
+        this.quantidade = 0;
 
+    }
+
+    setQuantidade(quant:number){
+        this.quantidade = quant;
     }
 }
 
