@@ -14,7 +14,7 @@ interface Carrinho {
     total:number;
 }
 
-interface ItemDTO {
+interface ProdutoDTO {
     _id: ObjectId,
     nome:string,
     preco: string,
@@ -35,13 +35,13 @@ class CarrinhoController{
 
         const resultado = await db.collection('carrinhos').find({usuarioId: usuarioId}).toArray();
 
-        const item:ItemDTO | null = await db.collection<ItemDTO>('produtos').findOne({_id:ObjectId.createFromHexString(produtoId)});
+        const produto:ProdutoDTO | null = await db.collection<ProdutoDTO>('produtos').findOne({_id:ObjectId.createFromHexString(produtoId)});
 
-        if(!item){
+        if(!produto){
             return res.status(400).json({mensagem: "Item não encontrado"})
         }
 
-        const itemCarrinho = new ItemCarrinho(item._id.toString(), item.nome, item.preco, item.urlfoto, item.descricao);
+        const itemCarrinho = new ItemCarrinho(produto._id.toString(), produto.nome, produto.preco, produto.urlfoto, produto.descricao);
         itemCarrinho.setQuantidade(quantidadeItem)
         
         
@@ -49,15 +49,16 @@ class CarrinhoController{
             
             const carrinho = {
                 usuarioId:usuarioId,
-                itens: [item],
+                itens: [itemCarrinho],
                 dataAtulizacao: new Date(),
-                total: 1
+                total: Number(itemCarrinho.preco)*quantidadeItem
             }
 
             const re = await db.collection('carrinhos').insertOne(carrinho)
             return res.status(201).json({mensagem: "Carrinho criado com sucesso"})
         }else{
 
+            //verificar se o item já está no carrinho
              const resultadoAtualizacao = await db.collection<Carrinho>('carrinhos').updateOne(
                 {usuarioId: usuarioId}, 
                 {
@@ -69,7 +70,7 @@ class CarrinhoController{
             
             )
 
-            res.status(201).json({...item, _id: resultado, mensagem: "Item adcionado com sucesso"})  
+            res.status(201).json({...produto, _id: resultado, mensagem: "Item adcionado com sucesso"})  
         }
         
 
@@ -77,13 +78,14 @@ class CarrinhoController{
 
 
 
-
-
-
     async listarItem(req:Request, res:Response){
+
+        const {usuarioId} = req.body as {usuarioId:string}
         
-        const item = await db.collection('carrinhos').find().toArray();
-        res.status(200).json(item);
+        const carrinho = await db.collection<Carrinho>('carrinhos').findOne({usuarioId: usuarioId});
+        
+
+        res.status(200).json(carrinho?.itens);
     }
 
 
