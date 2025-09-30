@@ -1,6 +1,7 @@
 import { Request, Response } from "express"
 import db from "../database/banco-mongo.js"
 import ProdutoEntity from "./produto.entity.js";
+import {ObjectId} from "bson";
 
 //id
 //nome
@@ -12,11 +13,12 @@ class ProdutoController{
     
     async adicionar(req:Request, res:Response){
 
-        const {id, nome, preco, urlfoto, descricao} = req.body;
+        const {_id, nome, preco, urlfoto, descricao} = req.body as {_id:string, nome:string, preco:string, urlfoto:string, descricao:string};
 
-        const produto = new ProdutoEntity(id, nome, preco, urlfoto, descricao)
+        const produto = new ProdutoEntity(_id, nome, preco, urlfoto, descricao) 
+        
+        const resultado = await db.collection('produtos').insertOne({_id:ObjectId.createFromHexString(produto._id),produto})
 
-        const resultado = await db.collection('produtos').insertOne(produto)
         res.status(201).json({...produto, _id: resultado.insertedId})  
     }
 

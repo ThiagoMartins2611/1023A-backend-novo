@@ -22,7 +22,7 @@ class CarrinhoController{
 
     async adicionarItem(req:Request, res:Response){
 
-        const {produtoId, usuarioId, quantidadeItem} = req.body as {produtoId:number, usuarioId:Number, quantidadeItem:number};
+        const {produtoId, usuarioId, quantidadeItem} = req.body as {produtoId:string, usuarioId:Number, quantidadeItem:number};
 
         const resultado = await db.collection('carrinhos').find({usuarioId: usuarioId}).toArray();
         const item:ProdutoEntity|null = await db.collection<ProdutoEntity>('produtos').findOne({_id: produtoId});

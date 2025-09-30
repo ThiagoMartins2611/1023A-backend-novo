@@ -4,7 +4,7 @@ class ItemCarrinho extends ProdutoEntity{
 
     private quantidade: number;
 
-    constructor(_id:number, nome:string, preco:string, urlfoto:string, descricao:string){
+    constructor(_id:string, nome:string, preco:string, urlfoto:string, descricao:string){
 
         super(_id, nome, preco, urlfoto, descricao)
         this.quantidade = 0;
