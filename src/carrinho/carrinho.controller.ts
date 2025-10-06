@@ -37,8 +37,10 @@ class CarrinhoController{
 
         const produto:ProdutoDTO | null = await db.collection<ProdutoDTO>('produtos').findOne({_id:ObjectId.createFromHexString(produtoId)});
 
+        
+
         if(!produto){
-            return res.status(400).json({mensagem: "Item não encontrado"})
+            return res.status(400).json({mensagem: "Produto não encontrado"})
         }
 
         const itemCarrinho = new ItemCarrinho(produto._id.toString(), produto.nome, produto.preco, produto.urlfoto, produto.descricao);
@@ -56,32 +58,41 @@ class CarrinhoController{
 
             const re = await db.collection('carrinhos').insertOne(carrinho)
             return res.status(201).json({mensagem: "Carrinho criado com sucesso"})
-        }else{
+        } 
+        
+        else{
 
             //verificar se o item já está no carrinho
+            let CarrinhoJáContemoProduto = false;
+
+            (resultado[0]!.itens).forEach((element:ProdutoDTO) => {
+                if(element._id.toString() == itemCarrinho._id){
+                    CarrinhoJáContemoProduto = true;
+                }
+            }); 
+
+            if (CarrinhoJáContemoProduto) return res.status(201).json({mensagem: "Este item já está no carrinho"});
+
+            
+
              const resultadoAtualizacao = await db.collection<Carrinho>('carrinhos').updateOne(
                 {usuarioId: usuarioId}, 
                 {
 
                     $push: {itens: itemCarrinho},
                     $set: {dataAtualizacao: new Date()},
-                    $inc: {total: 1}
+                    $inc: {total: (Number(itemCarrinho.preco)*quantidadeItem) + resultado[0]!.total}
                 }
             
             )
 
-            res.status(201).json({...produto, _id: resultado, mensagem: "Item adcionado com sucesso"})  
+            return res.status(201).json({...produto, _id: resultado[0]?._id, mensagem: "Item adcionado com sucesso"})  
         }
-        
-
     }
 
 
-
     async listarItem(req:Request, res:Response){
-
         const {usuarioId} = req.body as {usuarioId:string}
-        
         const carrinho = await db.collection<Carrinho>('carrinhos').findOne({usuarioId: usuarioId});
         
 
@@ -91,9 +102,24 @@ class CarrinhoController{
 
     async removerItem(req:Request, res:Response){
 
-        const item = req.body;
+        const {produtoId, usuarioId} = req.body as {produtoId: string, usuarioId: string};
 
-        const resultado = await db.collection('carrinhos').insertOne(item)
+        const produto = await db.collection<ProdutoDTO>('produtos').findOne({_id: ObjectId.createFromHexString(produtoId)})
+
+
+        const resul = await db.collection<Carrinho>('carrinhos').updateOne(
+            {usuarioId: usuarioId},
+
+            {
+                $pull: {
+                    itens: {_id: produtoId}
+                },
+
+                $inc: {
+                    total: 
+                }
+            }
+        )
  
     }
 
