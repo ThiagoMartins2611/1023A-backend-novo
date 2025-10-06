@@ -44,7 +44,7 @@ class CarrinhoController{
         }
 
         const itemCarrinho = new ItemCarrinho(produto._id.toString(), produto.nome, produto.preco, produto.urlfoto, produto.descricao);
-        itemCarrinho.setQuantidade(quantidadeItem)
+        itemCarrinho.quantidade = quantidadeItem;
         
         
         if(resultado.length === 0){
@@ -81,7 +81,7 @@ class CarrinhoController{
 
                     $push: {itens: itemCarrinho},
                     $set: {dataAtualizacao: new Date()},
-                    $inc: {total: (Number(itemCarrinho.preco)*quantidadeItem) + resultado[0]!.total}
+                    $inc: {total: (Number(itemCarrinho.preco)*quantidadeItem)}
                 }
             
             )
@@ -104,22 +104,34 @@ class CarrinhoController{
 
         const {produtoId, usuarioId} = req.body as {produtoId: string, usuarioId: string};
 
-        const produto = await db.collection<ProdutoDTO>('produtos').findOne({_id: ObjectId.createFromHexString(produtoId)})
+        const carrinhoA = await db.collection<Carrinho>('carrinhos').findOne({usuarioId:usuarioId});
+        
+        const itemCarrinho = carrinhoA?.itens.find(item => item._id === produtoId);
 
 
-        const resul = await db.collection<Carrinho>('carrinhos').updateOne(
+        const carrinho = await db.collection<Carrinho>('carrinhos').updateOne(
             {usuarioId: usuarioId},
-
             {
                 $pull: {
                     itens: {_id: produtoId}
                 },
 
+                $set: {
+                    dataAtualizacao: new Date()
+                },
+
                 $inc: {
-                    total: 
+                    total: -Number(itemCarrinho!.preco)*itemCarrinho!.quantidade
                 }
+                
             }
-        )
+        );
+
+        if(carrinho.modifiedCount){
+            return res.status(200).json({mensagem: "Item excluido do carrinho com sucesso"});
+        }else{
+            return res.status(401).json({mensagem: "Item ou carrinho não encontrado"})
+        }
  
     }
 

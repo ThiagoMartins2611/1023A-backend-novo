@@ -2,7 +2,7 @@ import ProdutoEntity from "../produtos/produto.entity.js";
 
 class ItemCarrinho extends ProdutoEntity{
 
-    private quantidade: number;
+    public quantidade: number;
 
     constructor(_id:string, nome:string, preco:string, urlfoto:string, descricao:string){
 
@@ -11,9 +11,6 @@ class ItemCarrinho extends ProdutoEntity{
 
     }
 
-    setQuantidade(quant:number){
-        this.quantidade = quant;
-    }
 }
 
 export default ItemCarrinho
