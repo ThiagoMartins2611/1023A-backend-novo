@@ -5,6 +5,7 @@ import itemCarrinho from "./itemCarrinho.js";
 import ProdutoEntity from "../produtos/produto.entity.js";
 import ItemCarrinho from "./itemCarrinho.js";
 import { ObjectId } from "bson";
+import UsuarioEntity from "../usuarios/usuario.entity.js";
 
 
 interface Carrinho {
@@ -17,7 +18,7 @@ interface Carrinho {
 interface ProdutoDTO {
     _id: ObjectId,
     nome:string,
-    preco: string,
+    preco: number,
     urlfoto:string,
     descricao: string
 }
@@ -53,7 +54,7 @@ class CarrinhoController{
                 usuarioId:usuarioId,
                 itens: [itemCarrinho],
                 dataAtulizacao: new Date(),
-                total: Number(itemCarrinho.preco)*quantidadeItem
+                total: itemCarrinho.preco*quantidadeItem
             }
 
             const re = await db.collection('carrinhos').insertOne(carrinho)
@@ -81,7 +82,7 @@ class CarrinhoController{
 
                     $push: {itens: itemCarrinho},
                     $set: {dataAtualizacao: new Date()},
-                    $inc: {total: (Number(itemCarrinho.preco)*quantidadeItem)}
+                    $inc: {total: (itemCarrinho.preco*quantidadeItem)}
                 }
             
             )
@@ -106,8 +107,7 @@ class CarrinhoController{
 
         const carrinhoA = await db.collection<Carrinho>('carrinhos').findOne({usuarioId:usuarioId});
         
-        const itemCarrinho = carrinhoA?.itens.find(item => item._id === produtoId);
-
+        const itemCarrinho = carrinhoA?.itens.find(item => item._id === produtoId) as itemCarrinho;
 
         const carrinho = await db.collection<Carrinho>('carrinhos').updateOne(
             {usuarioId: usuarioId},
@@ -121,7 +121,7 @@ class CarrinhoController{
                 },
 
                 $inc: {
-                    total: -Number(itemCarrinho!.preco)*itemCarrinho!.quantidade
+                    total: -itemCarrinho.preco*itemCarrinho.quantidade
                 }
                 
             }
@@ -136,12 +136,65 @@ class CarrinhoController{
     }
 
     async atualizarQuantidade(req:Request, res:Response){
+        
+        const {produtoId, usuarioId, quantidade} = req.body as {produtoId: string, usuarioId: string, quantidade: number};
+        
+        const carrinhoA = await db.collection<Carrinho>('carrinhos').findOne({usuarioId:usuarioId});
+        if(!carrinhoA){
+            return res.status(401).send({mensagem: "Carrinho não foi encontrado"})
+        }
+        
+        const itemCarrinho = carrinhoA?.itens.find(item => item._id === produtoId) as itemCarrinho;
+        if(!itemCarrinho) return res.status(201).send({mensagem: "Item dentro do carrinho não encontrado"})
+        
+        const quantidadeAntiga = itemCarrinho.quantidade
+
+        if(itemCarrinho.quantidade + quantidade < 0){
+            return res.status(401).send({mensagem: "Não pode haver quantidade negativa"})
+        }
+
+    
+
+  
+        const valorIncTotal = itemCarrinho.preco * quantidade
+        const ObjectIdProduto = ObjectId.createFromHexString(produtoId)
+
+
+         const carrinho = await db.collection<Carrinho>('carrinhos').updateOne(
+            {usuarioId: usuarioId, "itens._id": produtoId},
+            {
+                
+                $set: {
+                    dataAtualizacao: new Date(),
+                    "itens.$.quantidade": quantidade
+                },
+
+                $inc: {
+                    total: (-quantidadeAntiga*itemCarrinho.preco)+valorIncTotal 
+                },
+            }
+        );
+
+        if(carrinho.modifiedCount){
+            return res.status(200).json({mensagem: "Quantidade Atualizada"});
+        }else{
+            return res.status(401).json({mensagem: "Item ou carrinho não encontrado", erro: carrinho.modifiedCount})
+        }
+ 
 
     }
 
 
     async apagarCarrinho(req:Request, res:Response){
+        const {usuarioId} = req.body as {usuarioId: string}
 
+        const resul = await db.collection("carrinhos").deleteOne({usuarioId: usuarioId});
+
+        if(!resul.acknowledged){
+            return res.status(401).send({mensagem: "Carrinho falhou em ser apagado"})
+        }
+
+        return res.status(200).send({mensagem: "carrinho apagado com sucesso!"})
     }
 
 
