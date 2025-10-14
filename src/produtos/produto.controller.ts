@@ -13,7 +13,7 @@ class ProdutoController{
     
     async adicionar(req:Request, res:Response){
 
-        const {_id, nome, preco, urlfoto, descricao} = req.body as {_id:string, nome:string, preco:string, urlfoto:string, descricao:string};
+        const {_id, nome, preco, urlfoto, descricao} = req.body as {_id:string, nome:string, preco:number, urlfoto:string, descricao:string};
 
         const produto = new ProdutoEntity(_id, nome, preco, urlfoto, descricao)
 

@@ -6,8 +6,6 @@ import { Router, Request, Response } from "express";
 
 const rotasAutenticadas = Router();
 
-
-rotasAutenticadas.post("/usuarios", usuarioController.adicionar);
 rotasAutenticadas.get("/usuarios", usuarioController.listar);
 
 rotasAutenticadas.post("/produtos", produtoController.adicionar);

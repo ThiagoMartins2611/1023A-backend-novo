@@ -5,15 +5,14 @@ class UsuarioEntity{
     readonly idade:number
     readonly email: string
     readonly senha: string
-    readonly salts: number
+
  
 
-    constructor(nome:string, idade:number, email:string, senha:string, salts:number){
+    constructor(nome:string, idade:number, email:string, senha:string){
         this.nome = nome
         this.idade = idade
         this.email = email
         this.senha = senha
-        this.salts = salts
     }
 
 }
