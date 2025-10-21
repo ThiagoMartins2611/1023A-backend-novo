@@ -4,6 +4,8 @@
 //urlfoto
 //descricao
 
+import { ObjectId } from "bson"
+
 
 class ProdutoEntity{
 
@@ -13,7 +15,10 @@ class ProdutoEntity{
     readonly urlfoto:string
     readonly descricao:string
 
-    constructor(_id:string, nome:string, preco:number, urlfoto:string,descricao:string){
+    constructor(nome:string, preco:number, urlfoto:string,descricao:string, _id?:string){
+        if(!_id){
+            _id = new ObjectId().toString()
+        }
         this._id = _id
         this.nome = nome
         this.preco = preco

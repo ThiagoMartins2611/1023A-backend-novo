@@ -7,12 +7,14 @@ import cors from 'cors';
 
 
 const app = express();
+app.use(cors());
 app.use(express.json());
+
 
 app.use(rotasNaoAutenticadas);
 app.use(Auth.userAuth);
 app.use(rotasAutenticadas);
-app.use(cors())
+
 
 
 

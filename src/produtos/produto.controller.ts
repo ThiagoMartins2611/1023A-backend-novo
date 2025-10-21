@@ -13,9 +13,9 @@ class ProdutoController{
     
     async adicionar(req:Request, res:Response){
 
-        const {_id, nome, preco, urlfoto, descricao} = req.body as {_id:string, nome:string, preco:number, urlfoto:string, descricao:string};
+        const {nome, preco, urlfoto, descricao} = req.body as {nome:string, preco:number, urlfoto:string, descricao:string};
 
-        const produto = new ProdutoEntity(_id, nome, preco, urlfoto, descricao)
+        const produto = new ProdutoEntity(nome, preco, urlfoto, descricao)
 
         const produtoDTO = {_id:ObjectId.createFromHexString(produto._id),nome:produto.nome,preco:produto.preco,urlfoto:produto.urlfoto,descricao:produto.descricao}
         

@@ -12,7 +12,7 @@ class Auth{
         const authUserHeader = req.headers.authorization
 
         if(!authUserHeader){
-            return res.status(401).json({mensagem:"token não fornecido"});
+            return res.status(401).json({mensagem:"token explodiu, não passado pelo header"});
         }
 
         const token = authUserHeader.split(" ")[1]!
@@ -20,7 +20,7 @@ class Auth{
 
             if(err){
                 console.log(err);
-                return res.status(401).json({mensagem:"Token invalido"});
+                return res.status(401).json({mensagem:"ERRO VALIDAÇÃO DO TOKEN Token invalido"});
             }
 
             if(typeof decoded === "string" || !decoded || !("usuarioId" in decoded)){
