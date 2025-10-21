@@ -7,6 +7,9 @@ import ItemCarrinho from "./itemCarrinho.js";
 import { ObjectId } from "bson";
 import UsuarioEntity from "../usuarios/usuario.entity.js";
 
+interface AuthRequest extends Request{
+    usuarioId?:string
+}
 
 interface Carrinho {
     usuarioId: string;
@@ -30,9 +33,11 @@ class CarrinhoController{
     //listar
     //apagar
 
-    async adicionarItem(req:Request, res:Response){
+    async adicionarItem(req:AuthRequest, res:Response){
 
-        const {produtoId, usuarioId, quantidadeItem} = req.body as {produtoId:string, usuarioId:Number, quantidadeItem:number};
+        const {produtoId, quantidadeItem} = req.body as {produtoId:string, usuarioId:Number, quantidadeItem:number};
+        const usuarioId = req.usuarioId;
+        if(!usuarioId) return res.status(401).send({mensagem: "usuario ID não encontrado"})
 
         const resultado = await db.collection('carrinhos').find({usuarioId: usuarioId}).toArray();
 
